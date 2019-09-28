@@ -57,9 +57,6 @@ void Searcher::PrefixFunc() {
 }
 
 unsigned Searcher::NextPref(const string& text) {
-  if (step == text.size()) {  // just in case
-    throw;
-  }
   unsigned curr = prev;
   while (curr && text[step] != ext_query[curr]) {  // going back until chars match
     curr = pi[curr - 1];
