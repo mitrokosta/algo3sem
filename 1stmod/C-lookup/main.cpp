@@ -2,14 +2,10 @@
 #include <vector>
 #include <queue>
 
-using std::cin;
-using std::cout;
-using std::endl;
 using std::vector;
 using std::string;
-using std::queue;
 
-static const int alph_len = 26;
+static const int ALPH_LEN = 26;
 
 struct CutString { // cuts a string into mask-less templates
   int beg_quest; // first non-mask position
@@ -29,8 +25,8 @@ class Trie {
     void BFS(); // performs a BFS in the trie, establishes suflinks and termlinks
     vector<int> CountEntries(const string& text, const CutString& cs); // looks for all mask-less patterns and marks their positions
     struct Node {
-      vector<Node*> next = vector<Node*>(alph_len, nullptr); // next to be visited vertex
-      vector<Node*> offspring = vector<Node*>(alph_len, nullptr); // children of a vertex
+      vector<Node*> next = vector<Node*>(ALPH_LEN, nullptr); // next to be visited vertex
+      vector<Node*> offspring = vector<Node*>(ALPH_LEN, nullptr); // children of a vertex
       vector<int> patterns; // contains indexes of patterns that terminate in this vertex
       Node* parent = nullptr;
       Node* suflink = nullptr;
@@ -43,18 +39,24 @@ class Trie {
 
 int main() {
   string query, text;
-  cin >> query >> text;
+  std::cin >> query >> text;
   Trie trie;
   for (int i : trie.Search(query, text)) {
-    cout << i << " ";
+    std::cout << i << " ";
   }
-  cout << endl;
+  std::cout << std::endl;
   return 0;
 }
 
 CutString::CutString(const string& query) {
-  for (beg_quest = 0; beg_quest < static_cast<int>(query.size()) && query[beg_quest] == '?'; ++beg_quest);
-  for (end_quest = query.size() - 1; end_quest >= 0 && query[end_quest] == '?'; --end_quest);
+  beg_quest = 0;
+  while (beg_quest < static_cast<int>(query.size()) && query[beg_quest] == '?') {
+    ++beg_quest;
+  }
+  end_quest = query.size() - 1;
+  while (end_quest >= 0 && query[end_quest] == '?') {
+    --end_quest;
+  }
   int sz = 0;
   for (int i = 0; i < static_cast<int>(query.size()); ++i) {
     if (query[i] != '?') {
@@ -101,20 +103,20 @@ vector<int> Trie::Search(const string& query, const string& text) {
 }
 
 void Trie::BFS() {
-  queue<Node*> bfsqueue;
+  std::queue<Node*> bfsqueue;
   bfsqueue.push(root);
   while (!bfsqueue.empty()) {
     Node* top = bfsqueue.front();
     bfsqueue.pop();
     top->suflink = root;
 
-    for (int i = 0; i < alph_len; ++i) { // assign suflinks
+    for (int i = 0; i < ALPH_LEN; ++i) { // assign suflinks
       if (top->parent != nullptr && top->parent != root && top->parent->offspring[i] == top) {
         top->suflink = top->parent->suflink->next[i];
       }
     }
 
-    for (int i = 0; i < alph_len; ++i) { // assign next to be visited array
+    for (int i = 0; i < ALPH_LEN; ++i) { // assign next to be visited array
       if (top == root && top->offspring[i] == nullptr) {
         top->next[i] = root;
       } else if (top->offspring[i] != nullptr) {
@@ -184,7 +186,7 @@ Trie::~Trie() {
 }
 
 Trie::Node::~Node() {
-  for (int i = 0; i < alph_len; ++i) {
+  for (int i = 0; i < ALPH_LEN; ++i) {
     delete offspring[i];
   }
 }
