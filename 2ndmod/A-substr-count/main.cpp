@@ -10,7 +10,7 @@ static const int ALPH_LEN = 26;
 
 class SuffixArray {
   public:
-    void BuildArr(const string& raw_text);
+    SuffixArray(const string& raw_text);
     void BuildLCP(); // build lcp using the stored suffix array
     vector<int> GetArr() const;
     vector<int> GetLCP() const;
@@ -19,6 +19,8 @@ class SuffixArray {
     void NextSort(int step);
     inline int Jump(int i, int len); // jump backwards
 
+    string text;
+    int txt_sz;
     vector<int> arr;
     vector<int> inverse;
     vector<int> new_arr;
@@ -26,8 +28,6 @@ class SuffixArray {
     vector<int> cls;
     vector<int> new_cls;
     vector<int> sort_counter;
-    string text;
-    int txt_sz;
 };
 
 long long SubstringsNumber(const string& text);
@@ -40,8 +40,7 @@ int main() {
 }
 
 long long SubstringsNumber(const string& text) {
-  SuffixArray sufarr;
-  sufarr.BuildArr(text);
+  SuffixArray sufarr(text);
   sufarr.BuildLCP();
   long long sum = 0;
   for (int i : sufarr.GetArr()) {
@@ -65,19 +64,18 @@ vector<int> SuffixArray::GetLCP() const {
   return vector<int>(lcp.begin() + 1, lcp.end() - 1);
 }
 
-void SuffixArray::BuildArr(const string& raw_text) {
+SuffixArray::SuffixArray(const string& raw_text) :
+    text(raw_text + '$'),
+    txt_sz(text.size()),
+    arr(txt_sz),
+    new_arr(txt_sz),
+    cls(txt_sz),
+    new_cls(txt_sz),
+    sort_counter(max(txt_sz, ALPH_LEN + 1)) {
   if (raw_text.empty()) {
     arr.resize(0);
     return;
   }
-  text = raw_text;
-  text.push_back('$');
-  txt_sz = text.size();
-  cls.resize(txt_sz);
-  new_cls.resize(txt_sz);
-  arr.resize(txt_sz);
-  new_arr.resize(txt_sz);
-  sort_counter.resize(max(txt_sz, ALPH_LEN + 1));
   FirstSort();
   for (int step = 0; (1 << step) < txt_sz; ++step) {
     NextSort(step);
