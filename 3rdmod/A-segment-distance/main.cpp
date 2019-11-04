@@ -2,9 +2,6 @@
 #include <iomanip>
 #include <cmath>
 
-using std::cout;
-using std::cin;
-using std::endl;
 using std::istream;
 using std::ostream;
 using std::min;
@@ -78,8 +75,8 @@ double SegmentDistance(const Segment& first_seg, const Segment& second_seg);
 
 int main() {
   Point a0, a1, b0, b1;
-  cin >> a0 >> a1 >> b0 >> b1;
-  cout << std::fixed << std::setprecision(8) << SegmentDistance(Segment(a0, a1), Segment(b0, b1));
+  std::cin >> a0 >> a1 >> b0 >> b1;
+  std::cout << std::fixed << std::setprecision(8) << SegmentDistance(Segment(a0, a1), Segment(b0, b1)) << std::endl;
   return 0;
 }
 
@@ -125,10 +122,10 @@ void UpdateIfFirstSegIsNotAPointAndT2IsZero(const Vector& r01, const Vector& r02
 }
 
 void CheckBoundaryT1s(const Segment& first_seg, const Segment& second_seg, double& curr_min) {
-  Vector r01 = Vector(first_seg.GetBegin()); // радиус-вектор начала первого отрезка
+  Vector r01 = Vector(first_seg.GetBegin()); // СЂР°РґРёСѓСЃ-РІРµРєС‚РѕСЂ РЅР°С‡Р°Р»Р° РїРµСЂРІРѕРіРѕ РѕС‚СЂРµР·РєР°
   Vector r02 = Vector(second_seg.GetBegin());
-  Vector r11 = Vector(first_seg.GetEnd()); // радиус-вектор конца первого отрезка
-  Vector b = Vector(second_seg); // второй направляющий вектор
+  Vector r11 = Vector(first_seg.GetEnd()); // СЂР°РґРёСѓСЃ-РІРµРєС‚РѕСЂ РєРѕРЅС†Р° РїРµСЂРІРѕРіРѕ РѕС‚СЂРµР·РєР°
+  Vector b = Vector(second_seg); // РІС‚РѕСЂРѕР№ РЅР°РїСЂР°РІР»СЏСЋС‰РёР№ РІРµРєС‚РѕСЂ
   double t2;
   t2 = DotProduct(r11 - r02, b) / DotProduct(b, b);
   if (t2 <= 1 && t2 >= 0) {
@@ -145,10 +142,10 @@ void CheckBoundaryT1s(const Segment& first_seg, const Segment& second_seg, doubl
 }
 
 void CheckBoundaryT2s(const Segment& first_seg, const Segment& second_seg, double& curr_min) {
-  Vector r01 = Vector(first_seg.GetBegin()); // радиус-вектор начала первого отрезка
+  Vector r01 = Vector(first_seg.GetBegin()); // СЂР°РґРёСѓСЃ-РІРµРєС‚РѕСЂ РЅР°С‡Р°Р»Р° РїРµСЂРІРѕРіРѕ РѕС‚СЂРµР·РєР°
   Vector r02 = Vector(second_seg.GetBegin());
   Vector r12 = Vector(second_seg.GetEnd());
-  Vector a = Vector(first_seg); // первый напрвляющий вектор
+  Vector a = Vector(first_seg); // РїРµСЂРІС‹Р№ РЅР°РїСЂРІР»СЏСЋС‰РёР№ РІРµРєС‚РѕСЂ
   double t1;
   t1 = DotProduct(r12 - r01, a) / DotProduct(a, a);
   if (t1 <= 1 && t1 >= 0) {
@@ -166,12 +163,12 @@ void CheckBoundaryT2s(const Segment& first_seg, const Segment& second_seg, doubl
 
 double SegmentDistance(const Segment& first_seg, const Segment& second_seg) {
   const double max_vec_len = 2 * Vector(MAX_COORD, MAX_COORD, MAX_COORD).GetLength();
-  Vector r01 = Vector(first_seg.GetBegin()); // радиус-вектор начала первого отрезка
+  Vector r01 = Vector(first_seg.GetBegin()); // СЂР°РґРёСѓСЃ-РІРµРєС‚РѕСЂ РЅР°С‡Р°Р»Р° РїРµСЂРІРѕРіРѕ РѕС‚СЂРµР·РєР°
   Vector r02 = Vector(second_seg.GetBegin());
-  Vector a = Vector(first_seg); // первый напрвляющий вектор
-  Vector b = Vector(second_seg); // второй направляющий вектор
+  Vector a = Vector(first_seg); // РїРµСЂРІС‹Р№ РЅР°РїСЂРІР»СЏСЋС‰РёР№ РІРµРєС‚РѕСЂ
+  Vector b = Vector(second_seg); // РІС‚РѕСЂРѕР№ РЅР°РїСЂР°РІР»СЏСЋС‰РёР№ РІРµРєС‚РѕСЂ
   double curr_min = max_vec_len;
-  double system_answer = SystemSolve(r01, a, r02, b); // находим минимальное расстояние через поиск экстремумов функции len(dr), где dr = r01 + t1 * a - r02 - t2 * b
+  double system_answer = SystemSolve(r01, a, r02, b); // РЅР°С…РѕРґРёРј РјРёРЅРёРјР°Р»СЊРЅРѕРµ СЂР°СЃСЃС‚РѕСЏРЅРёРµ С‡РµСЂРµР· РїРѕРёСЃРє СЌРєСЃС‚СЂРµРјСѓРјРѕРІ С„СѓРЅРєС†РёРё len(dr), РіРґРµ dr = r01 + t1 * a - r02 - t2 * b
   if (system_answer != -1) {
     curr_min = min(curr_min, system_answer);
   }
