@@ -1,12 +1,14 @@
 #include <iostream>
 #include <iomanip>
 #include <cmath>
+#include <limits>
 
 using std::istream;
 using std::ostream;
 using std::min;
 
 static const double MAX_COORD = 1000;
+static const double EPS = std::numeric_limits<double>::epsilon();
 
 class Point {
   public:
@@ -64,12 +66,9 @@ class Vector {
 double DotProduct(const Vector& first_vec, const Vector& second_vec);
 
 double SystemSolve(const Vector& r01, const Vector& a, const Vector& r02, const Vector& b);
-void CheckBoundaryT1s(const Segment& first_seg, const Segment& second_seg, double& curr_min);
-void CheckBoundaryT2s(const Segment& first_seg, const Segment& second_seg, double& curr_min);
-void UpdateIfSecondSegIsNotAPointAndT1IsOne(const Vector& r02, const Vector& r11, const Vector& b, double t2, double& curr_min);
-void UpdateIfSecondSegIsNotAPointAndT1IsZero(const Vector& r01, const Vector& r02, const Vector& b, double t2, double& curr_min);
-void UpdateIfFirstSegIsNotAPointAndT2IsOne(const Vector& r01, const Vector& r12, const Vector& a, double t1, double& curr_min);
-void UpdateIfFirstSegIsNotAPointAndT2IsZero(const Vector& r01, const Vector& r02, const Vector& a, double t1, double& curr_min);
+void CheckBoundaryTs(const Segment& first_seg, const Segment& second_seg, double& curr_min);
+void UpdateIfSecondSegIsNotAPointAndTIsOne(const Vector& r02, const Vector& r11, const Vector& b, double t2, double& curr_min);
+void UpdateIfSecondSegIsNotAPointAndTIsZero(const Vector& r01, const Vector& r02, const Vector& b, double t2, double& curr_min);
 
 double SegmentDistance(const Segment& first_seg, const Segment& second_seg);
 
@@ -93,7 +92,7 @@ double SystemSolve(const Vector& r01, const Vector& a, const Vector& r02, const 
     double second_det = DotProduct(a, a) * DotProduct(b, r01 - r02) - DotProduct(a, b) * DotProduct(a, r01 - r02);
     double t1 = first_det / main_det;
     double t2 = second_det / main_det;
-    if (t1 <= 1 && t2 <= 1 && t1 >= 0 && t2 >= 0) {
+    if (t1 - 1 <= EPS && t2 - 1 <= EPS && t1 >= -EPS && t2 >= -EPS) {
       Vector dr = r01 - r02 + a * t1 - b * t2;
       return dr.GetLength();
     }
@@ -101,64 +100,34 @@ double SystemSolve(const Vector& r01, const Vector& a, const Vector& r02, const 
   return -1;
 }
 
-void UpdateIfSecondSegIsNotAPointAndT1IsOne(const Vector& r02, const Vector& r11, const Vector& b, double t2, double& curr_min) {
+void UpdateIfSecondSegIsNotAPointAndTIsOne(const Vector& r02, const Vector& r11, const Vector& b, double t2, double& curr_min) {
   Vector dr = r11 - r02 - t2 * b;
   curr_min = min(curr_min, dr.GetLength());
 }
 
-void UpdateIfSecondSegIsNotAPointAndT1IsZero(const Vector& r01, const Vector& r02, const Vector& b, double t2, double& curr_min) {
+void UpdateIfSecondSegIsNotAPointAndTIsZero(const Vector& r01, const Vector& r02, const Vector& b, double t2, double& curr_min) {
   Vector dr = r01 - r02 - t2 * b;
   curr_min = min(curr_min, dr.GetLength());
 }
 
-void UpdateIfFirstSegIsNotAPointAndT2IsOne(const Vector& r01, const Vector& r12, const Vector& a, double t1, double& curr_min) {
-  Vector dr = r01 - r12 + t1 * a;
-  curr_min = min(curr_min, dr.GetLength());
-}
-
-void UpdateIfFirstSegIsNotAPointAndT2IsZero(const Vector& r01, const Vector& r02, const Vector& a, double t1, double& curr_min) {
-  Vector dr = r01 - r02 + t1 * a;
-  curr_min = min(curr_min, dr.GetLength());
-}
-
-void CheckBoundaryT1s(const Segment& first_seg, const Segment& second_seg, double& curr_min) {
+void CheckBoundaryTs(const Segment& first_seg, const Segment& second_seg, double& curr_min) {
   Vector r01 = Vector(first_seg.GetBegin()); // радиус-вектор начала первого отрезка
   Vector r02 = Vector(second_seg.GetBegin());
   Vector r11 = Vector(first_seg.GetEnd()); // радиус-вектор конца первого отрезка
   Vector b = Vector(second_seg); // второй направляющий вектор
   double t2;
   t2 = DotProduct(r11 - r02, b) / DotProduct(b, b);
-  if (t2 <= 1 && t2 >= 0) {
-    UpdateIfSecondSegIsNotAPointAndT1IsOne(r02, r11, b, t2, curr_min);
+  if (t2 - 1 <= EPS && t2 >= -EPS) {
+    UpdateIfSecondSegIsNotAPointAndTIsOne(r02, r11, b, t2, curr_min);
   }
-  UpdateIfSecondSegIsNotAPointAndT1IsOne(r02, r11, b, 0, curr_min);
-  UpdateIfSecondSegIsNotAPointAndT1IsOne(r02, r11, b, 1, curr_min);
+  UpdateIfSecondSegIsNotAPointAndTIsOne(r02, r11, b, 0, curr_min);
+  UpdateIfSecondSegIsNotAPointAndTIsOne(r02, r11, b, 1, curr_min);
   t2 = DotProduct(r01 - r02, b) / DotProduct(b, b);
-  if (t2 <= 1 && t2 >= 0) {
-    UpdateIfSecondSegIsNotAPointAndT1IsZero(r01, r02, b, t2, curr_min);
+  if (t2 - 1<= EPS && t2 >= -EPS) {
+    UpdateIfSecondSegIsNotAPointAndTIsZero(r01, r02, b, t2, curr_min);
   }
-  UpdateIfSecondSegIsNotAPointAndT1IsZero(r01, r02, b, 0, curr_min);
-  UpdateIfSecondSegIsNotAPointAndT1IsZero(r01, r02, b, 1, curr_min);
-}
-
-void CheckBoundaryT2s(const Segment& first_seg, const Segment& second_seg, double& curr_min) {
-  Vector r01 = Vector(first_seg.GetBegin()); // радиус-вектор начала первого отрезка
-  Vector r02 = Vector(second_seg.GetBegin());
-  Vector r12 = Vector(second_seg.GetEnd());
-  Vector a = Vector(first_seg); // первый напрвляющий вектор
-  double t1;
-  t1 = DotProduct(r12 - r01, a) / DotProduct(a, a);
-  if (t1 <= 1 && t1 >= 0) {
-    UpdateIfFirstSegIsNotAPointAndT2IsOne(r01, r12, a, t1, curr_min);
-  }
-  UpdateIfFirstSegIsNotAPointAndT2IsOne(r01, r12, a, 0, curr_min);
-  UpdateIfFirstSegIsNotAPointAndT2IsOne(r01, r12, a, 1, curr_min);
-  t1 = DotProduct(r02 - r01, a) / DotProduct(a, a);
-  if (t1 <= 1 && t1 >= 0) {
-    UpdateIfFirstSegIsNotAPointAndT2IsZero(r01, r02, a, t1, curr_min);
-  }
-  UpdateIfFirstSegIsNotAPointAndT2IsZero(r01, r02, a, 0, curr_min);
-  UpdateIfFirstSegIsNotAPointAndT2IsZero(r01, r02, a, 1, curr_min);
+  UpdateIfSecondSegIsNotAPointAndTIsZero(r01, r02, b, 0, curr_min);
+  UpdateIfSecondSegIsNotAPointAndTIsZero(r01, r02, b, 1, curr_min);
 }
 
 double SegmentDistance(const Segment& first_seg, const Segment& second_seg) {
@@ -173,10 +142,10 @@ double SegmentDistance(const Segment& first_seg, const Segment& second_seg) {
     curr_min = min(curr_min, system_answer);
   }
   if (DotProduct(b, b)) {
-    CheckBoundaryT1s(first_seg, second_seg, curr_min);
+    CheckBoundaryTs(first_seg, second_seg, curr_min);
   }
   if (DotProduct(a, a)) {
-    CheckBoundaryT2s(first_seg, second_seg, curr_min);
+    CheckBoundaryTs(second_seg, first_seg, curr_min);
   }
   if (!DotProduct(a, a) && !DotProduct(b, b)) {
     curr_min = min(curr_min, (r01 - r02).GetLength());
