@@ -9,10 +9,8 @@ using std::istream;
 using std::ostream;
 using std::vector;
 
-static const double EPS = 10 * std::numeric_limits<double>::epsilon();
-#ifndef M_PI
-#define M_PI 3.14159265358979323846
-#endif // M_PI
+static const double EPS = std::numeric_limits<double>::epsilon();
+static const double PI = 3.14159265358979323846;
 
 class Vector;
 
@@ -30,7 +28,6 @@ class Point {
   private:
     double x;
     double y;
-    double z;
 };
 
 class Vector {
@@ -55,14 +52,13 @@ class Vector {
   private:
     double x;
     double y;
-    double z;
 };
 
 bool ComparePoints(const Point& lhs, const Point& rhs); // для поиска левой нижней точки
 void SetPrepare(vector<Point>& set); // разворот в порядке против часовой, поиск левой нижней точки
 double DotProduct(const Vector& first_vec, const Vector& second_vec); // скалярное произведение
 vector<Point> MinkSum(vector<Point> first_set, vector<Point> second_set);
-bool IsInSet(Point p, const vector<Point>& set);
+bool IsInSet(const Point& p, const vector<Point>& set);
 double VectorComp(const Vector& first_vec, const Vector& second_vec); // векторное произведение
 
 int main() {
@@ -88,7 +84,7 @@ double VectorComp(const Vector& first_vec, const Vector& second_vec) {
   return first_vec.GetX() * second_vec.GetY() - first_vec.GetY() * second_vec.GetX();
 }
 
-bool IsInSet(Point p, const vector<Point>& set) {
+bool IsInSet(const Point& p, const vector<Point>& set) {
   int size = set.size();
   for (int i = 0; i < size; ++i) {
     if (VectorComp(Vector(set[i], set[(i + 1) % size]), Vector(set[i], Point())) < -EPS) {
@@ -120,9 +116,7 @@ vector<Point> MinkSum(vector<Point> first_set, vector<Point> second_set) {
     Vector first_vec(first_set[first_ptr % first_size], first_set[(first_ptr + 1) % first_size]);
     Vector second_vec(second_set[second_ptr % second_size], second_set[(second_ptr + 1) % second_size]);
     result.push_back(Point() + Vector(first_set[first_ptr % first_size]) + Vector(second_set[second_ptr % second_size]));
-    double first_ang = first_vec.GetPolarAngle();
-    double second_ang = second_vec.GetPolarAngle();
-    if (second_ptr == second_size || (first_ptr < first_size && first_ang < second_ang)) { // выбор указателя, который нужно сдвинуть
+    if (second_ptr == second_size || (first_ptr < first_size && VectorComp(first_vec, second_vec) > EPS)) { // выбор указателя, который нужно сдвинуть
       ++first_ptr;
     } else {
       ++second_ptr;
@@ -219,7 +213,7 @@ double Vector::GetLength() const {
 double Vector::GetPolarAngle() const {
   double ang = atan2(y, x);
   if (ang < -EPS) {
-    ang += 2 * M_PI;
+    ang += 2 * PI;
   }
   return ang;
 }
