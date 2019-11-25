@@ -10,7 +10,6 @@ using std::ostream;
 using std::vector;
 
 static const double EPS = std::numeric_limits<double>::epsilon();
-static const double PI = 3.14159265358979323846;
 
 class Vector;
 
@@ -213,7 +212,7 @@ double Vector::GetLength() const {
 double Vector::GetPolarAngle() const {
   double ang = atan2(y, x);
   if (ang < -EPS) {
-    ang += 2 * PI;
+    ang += 2 * M_PI;
   }
   return ang;
 }
