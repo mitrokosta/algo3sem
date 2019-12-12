@@ -174,9 +174,9 @@ vector<Face> BuildConvexHull(vector<Point> pts) {
   int first_point = std::min_element(pts.begin(), pts.end(), ComparePoints) - pts.begin();
   int second_point = first_point; // Поиск начального ребра
   for (int i = 0; i < pts_num; ++i) {
-    if (pts[second_point].GetZ() == pts[i].GetZ() &&
-        pts[second_point].GetY() == pts[i].GetY() &&
-        pts[second_point].GetX() < pts[i].GetX()) {
+    if (fabs(pts[second_point].GetZ() - pts[i].GetZ()) < EPS &&
+        fabs(pts[second_point].GetY() - pts[i].GetY()) < EPS &&
+        pts[second_point].GetX() < pts[i].GetX() - EPS) {
       second_point = i;
     }
   }
@@ -228,9 +228,9 @@ bool FaceCompare::operator()(const Face& lhs, const Face& rhs) {
 }
 
 bool ComparePoints(const Point& lhs, const Point& rhs) {
-  return (lhs.z < rhs.z ||
-         (lhs.z == rhs.z && lhs.x < rhs.x) ||
-         (lhs.z == rhs.z && lhs.x == rhs.x && lhs.y < rhs.y));
+  return (lhs.z < rhs.z - EPS ||
+         (fabs(lhs.z - rhs.z) < EPS && lhs.x < rhs.x - EPS) ||
+         (fabs(lhs.z - rhs.z) < EPS && fabs(lhs.x - rhs.x) < EPS && lhs.y < rhs.y - EPS));
 }
 
 Plane::Plane(const Point& first_point, const Point& second_point, const Point& third_point) {
