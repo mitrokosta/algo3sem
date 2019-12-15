@@ -44,7 +44,7 @@ class BigInteger {
     friend istream& operator>>(istream& in, BigInteger& num);
 
   private:
-    void Add(const BigInteger& other); // Сумирует два числа по модулю, считая *this больше или равным other
+    void Add(const BigInteger& other); // Прибавляет к *this other по модулю, считая *this больше или равным other
     void Subtract(const BigInteger& other); // Вычитает из *this other по модулю, считая *this больше или равным other
     void Split(BigInteger& high, BigInteger& low) const; // Разбивает число на две равные по числу разрядов части
     void Shift(int shift); // Выполняет сдвиг числа на произвольное число разрядов
